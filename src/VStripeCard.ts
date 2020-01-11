@@ -54,6 +54,10 @@ export default base.extend<options>().extend({
       type: String,
       required: true,
     },
+    customerData: {
+      type: Object,
+      default: () => ({}),
+    },
     create: {
       type: String,
       default: 'token',
@@ -432,6 +436,19 @@ export default base.extend<options>().extend({
           if (!error) {
             this.errorBucket = []
             this.$emit('input', token)
+          } else {
+            // handle error
+            error.message && this.errorBucket.push(error.message)
+          }
+        } else if(this.create === 'paymentMethod') {
+          const { paymentMethod, error } = await this.stripe.createPaymentMethod({
+            type: 'card',
+            card: this.card,
+            billing_details: this.customerData
+          });
+          if (!error) {
+            this.errorBucket = []
+            this.$emit('input', paymentMethod)
           } else {
             // handle error
             error.message && this.errorBucket.push(error.message)
